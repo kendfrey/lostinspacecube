@@ -1,0 +1,19 @@
+body
+{
+	margin: 0;
+}
+
+canvas
+{
+	display: block;
+}
+
+.flex-container
+{
+	display: flex;
+}
+
+.padded
+{
+	padding: 10px;
+}
