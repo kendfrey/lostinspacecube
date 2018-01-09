@@ -13,8 +13,10 @@
   "author": "Kendall Frey",
   "license": "MIT",
   "dependencies": {
+    "canvas-to-buffer": "^1.0.11",
     "cubejs": "^1.0.3",
     "electron": "^1.7.10",
+    "rimraf": "^2.6.2",
     "seedrandom": "^2.4.3"
   },
   "devDependencies": {

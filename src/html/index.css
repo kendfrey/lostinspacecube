@@ -17,3 +17,9 @@ canvas
 {
 	padding: 10px;
 }
+
+#save
+{
+	position: absolute;
+	bottom: 10px;
+}

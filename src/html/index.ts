@@ -1,14 +1,19 @@
+const path = require("path");
+const fs = require("fs");
+const os = require("os");
+const rimraf = require("rimraf");
 const seedrandom = require("seedrandom");
+const Frame = require("canvas-to-buffer");
 const CubeJS = require("cubejs");
 require("cubejs/lib/solve.js");
 CubeJS.initSolver();
 
-const gapAngle1 = Math.asin(1 / 29);
-const gapAngle2 = Math.asin(Math.sqrt(0.5) / 29);
-const gapAngle3 = Math.asin(1 / 31);
-const gapAngle4 = Math.asin(Math.sqrt(0.5) / 31);
-
-const shades = ["#ffffff", "#00ff00", "#ff0000", "#0000ff", "#ff7f00", "#ffff00"];
+const schemes =
+{
+	black: ["#ffffff", "#009a44", "#ba0c2f", "#003da5", "#fe5000", "#ffd700", "#000000"],
+	white: ["#000000", "#009a44", "#ba0c2f", "#003da5", "#fe5000", "#ffd700", "#ffffff"],
+};
+const shades = schemes.black;
 
 class LISCube
 {
@@ -16,9 +21,8 @@ class LISCube
 
 	public draw(ctx: CanvasRenderingContext2D)
 	{
-		ctx.fillStyle = "#000000";
-		ctx.fillRect(0, 300, 1200, 300);
-		ctx.fillRect(300, 0, 300, 900);
+		ctx.save();
+		ctx.translate(1.5, 1.5);
 
 		this.drawFace(ctx, 0, 300, 0);
 		this.drawFace(ctx, 1, 300, 300);
@@ -26,19 +30,48 @@ class LISCube
 		this.drawFace(ctx, 3, 900, 300);
 		this.drawFace(ctx, 4, 0, 300);
 		this.drawFace(ctx, 5, 300, 600);
+
+		ctx.restore();
 	}
 
 	private drawFace(ctx: CanvasRenderingContext2D, index: number, x: number, y: number)
 	{
-		this.drawCornerSticker(ctx, this.getSticker(index, 0), 0, x, y);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 1), 0, x + 100, y);
-		this.drawCornerSticker(ctx, this.getSticker(index, 2), 1, x + 200, y);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 3), 3, x, y + 100);
-		this.drawCentre(ctx, index, x + 100, y + 100);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 4), 1, x + 200, y + 100);
-		this.drawCornerSticker(ctx, this.getSticker(index, 5), 3, x, y + 200);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 6), 2, x + 100, y + 200);
-		this.drawCornerSticker(ctx, this.getSticker(index, 7), 2, x + 200, y + 200);
+		ctx.save();
+		ctx.translate(x, y);
+		
+		this.drawCornerSticker(ctx, this.getSticker(index, 0), 0, 0, 0);
+		this.drawEdgeSticker(ctx, this.getSticker(index, 1), 0, 100, 0);
+		this.drawCornerSticker(ctx, this.getSticker(index, 2), 1, 200, 0);
+		this.drawEdgeSticker(ctx, this.getSticker(index, 3), 3, 0, 100);
+		this.drawCentre(ctx, index, 100, 100);
+		this.drawEdgeSticker(ctx, this.getSticker(index, 4), 1, 200, 100);
+		this.drawCornerSticker(ctx, this.getSticker(index, 5), 3, 0, 200);
+		this.drawEdgeSticker(ctx, this.getSticker(index, 6), 2, 100, 200);
+		this.drawCornerSticker(ctx, this.getSticker(index, 7), 2, 200, 200);
+
+		ctx.lineWidth = 3;
+		ctx.strokeStyle = shades[6];
+		ctx.lineCap = "square";
+		ctx.beginPath();
+		ctx.moveTo(0, 0);
+		ctx.lineTo(0, 300);
+		ctx.moveTo(100, 0);
+		ctx.lineTo(100, 300);
+		ctx.moveTo(200, 0);
+		ctx.lineTo(200, 300);
+		ctx.moveTo(300, 0);
+		ctx.lineTo(300, 300);
+		ctx.moveTo(0, 0);
+		ctx.lineTo(300, 0);
+		ctx.moveTo(0, 100);
+		ctx.lineTo(300, 100);
+		ctx.moveTo(0, 200);
+		ctx.lineTo(300, 200);
+		ctx.moveTo(0, 300);
+		ctx.lineTo(300, 300);
+		ctx.stroke();
+		
+		ctx.restore();
 	}
 
 	private getSticker(faceIndex: number, stickerIndex: number): number[]
@@ -50,6 +83,7 @@ class LISCube
 	{
 		const quarterTurn = Math.PI * 0.5;
 
+		ctx.save();
 		ctx.translate(x, y);
 
 		ctx.translate(50, 50);
@@ -76,29 +110,53 @@ class LISCube
 
 		this.drawCornerStickerTile(ctx, colours.slice(9, 12));
 
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		const radius = Math.sqrt(0.5) * 30;
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = shades[6];
+		ctx.beginPath();
+
+		ctx.moveTo(0, 0);
+		ctx.lineTo(50 - radius, 50 - radius);
+		ctx.moveTo(100, 0);
+		ctx.lineTo(50 + radius, 50 - radius);
+		ctx.moveTo(0, 100);
+		ctx.lineTo(50 - radius, 50 + radius);
+		ctx.moveTo(100, 100);
+		ctx.lineTo(50 + radius, 50 + radius);
+
+		ctx.moveTo(50, 0);
+		ctx.lineTo(50, 100);
+		ctx.moveTo(0, 50);
+		ctx.lineTo(100, 50);
+
+		ctx.moveTo(80, 50);
+		ctx.ellipse(50, 50, 30, 30, 0, 0, Math.PI * 2);
+
+		ctx.stroke();
+
+		ctx.restore();
 	}
 
 	private drawCornerStickerTile(ctx: CanvasRenderingContext2D, colours: number[])
 	{
 		ctx.fillStyle = shades[colours[0]];
 		ctx.beginPath();
-		ctx.moveTo(49, 49);
-		ctx.arc(50, 50, 29, Math.PI + gapAngle1, Math.PI * 1.5 - gapAngle1);
+		ctx.moveTo(50, 50);
+		ctx.arc(50, 50, 30, Math.PI, Math.PI * 1.5);
 		ctx.fill();
 
 		ctx.fillStyle = shades[colours[1]];
 		ctx.beginPath();
-		ctx.lineTo(5, 6);
-		ctx.lineTo(5, 49);
-		ctx.arc(50, 50, 31, Math.PI + gapAngle3, Math.PI * 1.25 - gapAngle4);
+		ctx.moveTo(0, 0);
+		ctx.lineTo(0, 50);
+		ctx.arc(50, 50, 30, Math.PI, Math.PI * 1.25);
 		ctx.fill();
 		
 		ctx.fillStyle = shades[colours[2]];
 		ctx.beginPath();
-		ctx.lineTo(6, 5);
-		ctx.lineTo(49, 5);
-		ctx.arc(50, 50, 31, Math.PI * 1.5 - gapAngle3, Math.PI * 1.25 + gapAngle4, true);
+		ctx.moveTo(0, 0);
+		ctx.lineTo(50, 0);
+		ctx.arc(50, 50, 30, Math.PI * 1.5, Math.PI * 1.25, true);
 		ctx.fill();
 	}
 
@@ -106,6 +164,7 @@ class LISCube
 	{
 		const quarterTurn = Math.PI * 0.5;
 
+		ctx.save();
 		ctx.translate(x, y);
 
 		ctx.translate(50, 50);
@@ -132,36 +191,59 @@ class LISCube
 
 		this.drawEdgeStickerTile(ctx, colours.slice(9, 12));
 
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = shades[6];
+		ctx.beginPath();
+
+		ctx.moveTo(0, 0);
+		ctx.lineTo(100, 100);
+		ctx.moveTo(100, 0);
+		ctx.lineTo(0, 100);
+
+		ctx.moveTo(50, 0);
+		ctx.lineTo(50, 20);
+		ctx.moveTo(50, 80);
+		ctx.lineTo(50, 100);
+		ctx.moveTo(0, 50);
+		ctx.lineTo(20, 50);
+		ctx.moveTo(80, 50);
+		ctx.lineTo(100, 50);
+
+		ctx.moveTo(80, 50);
+		ctx.ellipse(50, 50, 30, 30, 0, 0, Math.PI * 2);
+
+		ctx.stroke();
+
+		ctx.restore();
 	}
 
 	private drawEdgeStickerTile(ctx: CanvasRenderingContext2D, colours: number[])
 	{
 		ctx.fillStyle = shades[colours[0]];
 		ctx.beginPath();
-		ctx.moveTo(50, 49);
-		ctx.arc(50, 50, 29, Math.PI * 1.25 + gapAngle2, Math.PI * 1.75 - gapAngle2);
+		ctx.moveTo(50, 50);
+		ctx.arc(50, 50, 30, Math.PI * 1.25, Math.PI * 1.75);
 		ctx.fill();
 		
 		ctx.fillStyle = shades[colours[1]];
 		ctx.beginPath();
-		ctx.lineTo(6, 5);
-		ctx.lineTo(49, 5);
-		ctx.arc(50, 50, 31, Math.PI * 1.5 - gapAngle3, Math.PI * 1.25 + gapAngle4, true);
+		ctx.moveTo(0, 0);
+		ctx.lineTo(50, 0);
+		ctx.arc(50, 50, 30, Math.PI * 1.5, Math.PI * 1.25, true);
 		ctx.fill();
 		
 		ctx.fillStyle = shades[colours[2]];
 		ctx.beginPath();
-		ctx.lineTo(94, 5);
-		ctx.lineTo(51, 5);
-		ctx.arc(50, 50, 31, Math.PI * 1.5 + gapAngle3, Math.PI * 1.75 - gapAngle4);
+		ctx.moveTo(100, 0);
+		ctx.lineTo(50, 0);
+		ctx.arc(50, 50, 30, Math.PI * 1.5, Math.PI * 1.75);
 		ctx.fill();
 	}
 
 	private drawCentre(ctx: CanvasRenderingContext2D, colour: number, x: number, y: number)
 	{
 		ctx.fillStyle = shades[colour];
-		ctx.fillRect(x + 5, y + 5, 90, 90);
+		ctx.fillRect(x, y, 100, 100);
 	}
 }
 
@@ -293,14 +375,21 @@ const ctx = canvas.getContext("2d")!;
 const output = document.getElementById("output")!;
 const seed = document.getElementById("seed") as HTMLInputElement;
 
-document.getElementById("new")!.addEventListener("click", () =>
+document.getElementById("new")!.addEventListener("click", create);
+document.getElementById("save")!.addEventListener("click", save);
+
+let cube: LISCube;
+
+create();
+
+function create()
 {
 	seed.value = seedrandom(seed.value || readableSeed(), { global: true });
 
 	const scrambles: string[] = Array(12).fill("").map(CubeJS.scramble);
 	scrambles[0] = "No scramble";
 
-	const cube = new LISCube();
+	cube = new LISCube();
 
 	for (let i = 0; i < 12; i++)
 	{
@@ -329,9 +418,43 @@ document.getElementById("new")!.addEventListener("click", () =>
 
 	cube.draw(ctx);
 	output.textContent = scrambles.map((s, i) => `Orbit ${i}:\n${s.replace(/((?:\S+ ){10}(\S+)) /, "$1\n")}`).join("\n\n");
-});
+}
 
 function readableSeed()
 {
 	return Math.floor(Math.random() * 0x100000000).toString();
+}
+
+function save()
+{
+	try
+	{
+		const bigCanvas = document.createElement("canvas");
+		bigCanvas.width = canvas.width * 4;
+		bigCanvas.height = canvas.height * 4;
+		const ctx = bigCanvas.getContext("2d")!;
+		ctx.scale(4, 4);
+		cube.draw(ctx);
+
+		const baseDir = path.join(os.homedir(), "Lost In Space");
+		const dir = path.join(baseDir, seed.value.replace(/[^\w\- ]/g, "") || "_");
+		if (!fs.existsSync(baseDir))
+		{
+			fs.mkdirSync(baseDir);
+		}
+		if (fs.existsSync(dir))
+		{
+			rimraf.sync(dir);
+		}
+		fs.mkdirSync(dir);
+		fs.writeFileSync(path.join(dir, "seed.txt"), seed.value);
+		fs.writeFileSync(path.join(dir, "scramble.txt"), output.textContent);
+		fs.writeFileSync(path.join(dir, "stickers.png"), new Frame(bigCanvas, { image: { types: ["png"] } }).toBuffer());
+
+		alert(`Saved to ${dir}`);
+	}
+	catch (err)
+	{
+		alert(err);
+	}
 }
