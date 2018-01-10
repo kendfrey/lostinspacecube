@@ -10,44 +10,46 @@ CubeJS.initSolver();
 
 const schemes =
 {
-	black: ["#ffffff", "#009a44", "#ba0c2f", "#003da5", "#fe5000", "#ffd700", "#000000"],
-	white: ["#000000", "#009a44", "#ba0c2f", "#003da5", "#fe5000", "#ffd700", "#ffffff"],
+	"Regular black": ["#FFFFFF", "#009A44", "#BA0C2F", "#003DA5", "#FE5000", "#FFD700", "#000000"],
+	"Regular white": ["#000000", "#009A44", "#BA0C2F", "#003DA5", "#FE5000", "#FFD700", "#FFFFFF"],
+	"TheCubicle.us standard": ["#FFFFFF", "#019B67", "#C40042", "#373ABF", "#FF8601", "#FFDB00", "#000000"],
+	"TheCubicle.us half-bright": ["#FFFFFF", "#00AD51", "#C40042", "#373ABF", "#FE8707", "#F4F501", "#000000"],
+	"TheCubicle.us full-bright": ["#FFFFFF", "#00AD51", "#EF3E34", "#39B7EA", "#FE8707", "#F4F501", "#000000"],
 };
-const shades = schemes.black;
 
 class LISCube
 {
 	public orbits: Cube[] = Array(12).fill(undefined).map(() => new Cube());
 
-	public draw(ctx: CanvasRenderingContext2D)
+	public draw(ctx: CanvasRenderingContext2D, shades: string[])
 	{
 		ctx.save();
 		ctx.translate(1.5, 1.5);
 
-		this.drawFace(ctx, 0, 300, 0);
-		this.drawFace(ctx, 1, 300, 300);
-		this.drawFace(ctx, 2, 600, 300);
-		this.drawFace(ctx, 3, 900, 300);
-		this.drawFace(ctx, 4, 0, 300);
-		this.drawFace(ctx, 5, 300, 600);
+		this.drawFace(ctx, shades, 0, 300, 0);
+		this.drawFace(ctx, shades, 1, 300, 300);
+		this.drawFace(ctx, shades, 2, 600, 300);
+		this.drawFace(ctx, shades, 3, 900, 300);
+		this.drawFace(ctx, shades, 4, 0, 300);
+		this.drawFace(ctx, shades, 5, 300, 600);
 
 		ctx.restore();
 	}
 
-	private drawFace(ctx: CanvasRenderingContext2D, index: number, x: number, y: number)
+	private drawFace(ctx: CanvasRenderingContext2D, shades: string[], index: number, x: number, y: number)
 	{
 		ctx.save();
 		ctx.translate(x, y);
 		
-		this.drawCornerSticker(ctx, this.getSticker(index, 0), 0, 0, 0);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 1), 0, 100, 0);
-		this.drawCornerSticker(ctx, this.getSticker(index, 2), 1, 200, 0);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 3), 3, 0, 100);
-		this.drawCentre(ctx, index, 100, 100);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 4), 1, 200, 100);
-		this.drawCornerSticker(ctx, this.getSticker(index, 5), 3, 0, 200);
-		this.drawEdgeSticker(ctx, this.getSticker(index, 6), 2, 100, 200);
-		this.drawCornerSticker(ctx, this.getSticker(index, 7), 2, 200, 200);
+		this.drawCornerSticker(ctx, shades, this.getSticker(index, 0), 0, 0, 0);
+		this.drawEdgeSticker(ctx, shades, this.getSticker(index, 1), 0, 100, 0);
+		this.drawCornerSticker(ctx, shades, this.getSticker(index, 2), 1, 200, 0);
+		this.drawEdgeSticker(ctx, shades, this.getSticker(index, 3), 3, 0, 100);
+		this.drawCentre(ctx, shades, index, 100, 100);
+		this.drawEdgeSticker(ctx, shades, this.getSticker(index, 4), 1, 200, 100);
+		this.drawCornerSticker(ctx, shades, this.getSticker(index, 5), 3, 0, 200);
+		this.drawEdgeSticker(ctx, shades, this.getSticker(index, 6), 2, 100, 200);
+		this.drawCornerSticker(ctx, shades, this.getSticker(index, 7), 2, 200, 200);
 
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = shades[6];
@@ -79,7 +81,7 @@ class LISCube
 		return this.orbits.map(cube => cube.stickers[faceIndex][stickerIndex]);
 	}
 
-	private drawCornerSticker(ctx: CanvasRenderingContext2D, colours: number[], orientation: number, x: number, y: number)
+	private drawCornerSticker(ctx: CanvasRenderingContext2D, shades: string[], colours: number[], orientation: number, x: number, y: number)
 	{
 		const quarterTurn = Math.PI * 0.5;
 
@@ -90,25 +92,25 @@ class LISCube
 		ctx.rotate(orientation * quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawCornerStickerTile(ctx, colours.slice(0, 3));
+		this.drawCornerStickerTile(ctx, shades, colours.slice(0, 3));
 
 		ctx.translate(50, 50);
 		ctx.rotate(quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawCornerStickerTile(ctx, colours.slice(3, 6));
+		this.drawCornerStickerTile(ctx, shades, colours.slice(3, 6));
 
 		ctx.translate(50, 50);
 		ctx.rotate(quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawCornerStickerTile(ctx, colours.slice(6, 9));
+		this.drawCornerStickerTile(ctx, shades, colours.slice(6, 9));
 
 		ctx.translate(50, 50);
 		ctx.rotate(quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawCornerStickerTile(ctx, colours.slice(9, 12));
+		this.drawCornerStickerTile(ctx, shades, colours.slice(9, 12));
 
 		const radius = Math.sqrt(0.5) * 30;
 		ctx.lineWidth = 1;
@@ -137,7 +139,7 @@ class LISCube
 		ctx.restore();
 	}
 
-	private drawCornerStickerTile(ctx: CanvasRenderingContext2D, colours: number[])
+	private drawCornerStickerTile(ctx: CanvasRenderingContext2D, shades: string[], colours: number[])
 	{
 		ctx.fillStyle = shades[colours[0]];
 		ctx.beginPath();
@@ -160,7 +162,7 @@ class LISCube
 		ctx.fill();
 	}
 
-	private drawEdgeSticker(ctx: CanvasRenderingContext2D, colours: number[], orientation: number, x: number, y: number)
+	private drawEdgeSticker(ctx: CanvasRenderingContext2D, shades: string[], colours: number[], orientation: number, x: number, y: number)
 	{
 		const quarterTurn = Math.PI * 0.5;
 
@@ -171,25 +173,25 @@ class LISCube
 		ctx.rotate(orientation * quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawEdgeStickerTile(ctx, colours.slice(0, 3));
+		this.drawEdgeStickerTile(ctx, shades, colours.slice(0, 3));
 
 		ctx.translate(50, 50);
 		ctx.rotate(quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawEdgeStickerTile(ctx, colours.slice(3, 6));
+		this.drawEdgeStickerTile(ctx, shades, colours.slice(3, 6));
 
 		ctx.translate(50, 50);
 		ctx.rotate(quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawEdgeStickerTile(ctx, colours.slice(6, 9));
+		this.drawEdgeStickerTile(ctx, shades, colours.slice(6, 9));
 
 		ctx.translate(50, 50);
 		ctx.rotate(quarterTurn);
 		ctx.translate(-50, -50);
 
-		this.drawEdgeStickerTile(ctx, colours.slice(9, 12));
+		this.drawEdgeStickerTile(ctx, shades, colours.slice(9, 12));
 
 		ctx.lineWidth = 1;
 		ctx.strokeStyle = shades[6];
@@ -217,7 +219,7 @@ class LISCube
 		ctx.restore();
 	}
 
-	private drawEdgeStickerTile(ctx: CanvasRenderingContext2D, colours: number[])
+	private drawEdgeStickerTile(ctx: CanvasRenderingContext2D, shades: string[], colours: number[])
 	{
 		ctx.fillStyle = shades[colours[0]];
 		ctx.beginPath();
@@ -240,7 +242,7 @@ class LISCube
 		ctx.fill();
 	}
 
-	private drawCentre(ctx: CanvasRenderingContext2D, colour: number, x: number, y: number)
+	private drawCentre(ctx: CanvasRenderingContext2D, shades: string[], colour: number, x: number, y: number)
 	{
 		ctx.fillStyle = shades[colour];
 		ctx.fillRect(x, y, 100, 100);
@@ -372,52 +374,97 @@ class Cube
 const canvas = document.querySelector("canvas")!;
 const ctx = canvas.getContext("2d")!;
 
+const coloursInput = document.getElementById("colours") as HTMLInputElement;
+const schemesInput = document.getElementById("schemes") as HTMLSelectElement;
+const seedInput = document.getElementById("seed") as HTMLInputElement;
 const output = document.getElementById("output")!;
-const seed = document.getElementById("seed") as HTMLInputElement;
 
+schemesInput.addEventListener("change", selectScheme)
 document.getElementById("new")!.addEventListener("click", create);
 document.getElementById("save")!.addEventListener("click", save);
 
 let cube: LISCube;
+let seed: string;
+let shades: string[];
 
+initSchemes();
 create();
+
+function initSchemes()
+{
+	for (const scheme in schemes)
+	{
+		const option = document.createElement("option");
+		option.label = scheme;
+		option.value = JSON.stringify((<any>schemes)[scheme]);
+		schemesInput.appendChild(option);
+	}
+	schemesInput.selectedIndex = 0;
+	selectScheme();
+}
+
+function selectScheme()
+{
+	coloursInput.value = schemesInput.selectedOptions[0].value;
+}
 
 function create()
 {
-	seed.value = seedrandom(seed.value || readableSeed(), { global: true });
-
-	const scrambles: string[] = Array(12).fill("").map(CubeJS.scramble);
-	scrambles[0] = "No scramble";
-
-	cube = new LISCube();
-
-	for (let i = 0; i < 12; i++)
+	try
 	{
-		const orbit = cube.orbits[i];
-
-		for (let j = 0; j < i % 3; j++)
+		try
 		{
-			orbit.cornerTwist();
+			shades = JSON.parse(coloursInput.value);
+		}
+		catch (err)
+		{
+			throw `Invalid scheme: ${coloursInput.value}`;
+		}
+		seed = seedInput.value = seedrandom(seedInput.value || readableSeed(), { global: true });
+
+		const scrambles: string[] = Array(12).fill("").map(CubeJS.scramble);
+		scrambles[0] = "No scramble";
+
+		cube = new LISCube();
+
+		for (let i = 0; i < 12; i++)
+		{
+			const orbit = cube.orbits[i];
+
+			for (let j = 0; j < i % 3; j++)
+			{
+				orbit.cornerTwist();
+			}
+
+			if (i >= 3 && i < 9)
+			{
+				orbit.edgeFlip();
+			}
+
+			if (i >= 6)
+			{
+				orbit.edgeSwap();
+			}
 		}
 
-		if (i >= 3 && i < 9)
+		for (let i = 0; i < 12; i++)
 		{
-			orbit.edgeFlip();
+			cube.orbits[i].algorithm(scrambles[i]);
 		}
 
-		if (i >= 6)
-		{
-			orbit.edgeSwap();
-		}
+		cube.draw(ctx, shades);
+		output.textContent =
+		[
+			`Colour scheme:\n${JSON.stringify(shades)}`,
+			`Seed:\n${seed}`,
+			...scrambles.map((s, i) => `Orbit ${i}:\n${s}`),
+		]
+			.join("\n\n");
 	}
-
-	for (let i = 0; i < 12; i++)
+	catch (err)
 	{
-		cube.orbits[i].algorithm(scrambles[i]);
+		alert(err);
 	}
-
-	cube.draw(ctx);
-	output.textContent = scrambles.map((s, i) => `Orbit ${i}:\n${s.replace(/((?:\S+ ){10}(\S+)) /, "$1\n")}`).join("\n\n");
 }
 
 function readableSeed()
@@ -434,10 +481,10 @@ function save()
 		bigCanvas.height = canvas.height * 4;
 		const ctx = bigCanvas.getContext("2d")!;
 		ctx.scale(4, 4);
-		cube.draw(ctx);
+		cube.draw(ctx, shades);
 
 		const baseDir = path.join(os.homedir(), "Lost In Space");
-		const dir = path.join(baseDir, seed.value.replace(/[^\w\- ]/g, "") || "_");
+		const dir = path.join(baseDir, seedInput.value.replace(/[^\w\- ]/g, "") || "_");
 		if (!fs.existsSync(baseDir))
 		{
 			fs.mkdirSync(baseDir);
@@ -447,8 +494,7 @@ function save()
 			rimraf.sync(dir);
 		}
 		fs.mkdirSync(dir);
-		fs.writeFileSync(path.join(dir, "seed.txt"), seed.value);
-		fs.writeFileSync(path.join(dir, "scramble.txt"), output.textContent);
+		fs.writeFileSync(path.join(dir, "info.txt"), output.textContent);
 		fs.writeFileSync(path.join(dir, "stickers.png"), new Frame(bigCanvas, { image: { types: ["png"] } }).toBuffer());
 
 		alert(`Saved to ${dir}`);

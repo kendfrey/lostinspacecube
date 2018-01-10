@@ -1,6 +1,7 @@
 body
 {
 	margin: 0;
+	font-family: sans-serif;
 }
 
 canvas
@@ -13,9 +14,22 @@ canvas
 	display: flex;
 }
 
-.padded
+.sidebar
 {
 	padding: 10px;
+	line-height: 150%;
+	flex-grow: 1;
+}
+
+input
+{
+	width: 100%;
+	font-family: monospace;
+}
+
+pre
+{
+	line-height: 100%;
 }
 
 #save
