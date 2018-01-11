@@ -469,7 +469,7 @@ function create()
 
 function readableSeed()
 {
-	return Math.floor(Math.random() * 0x100000000).toString();
+	return Math.floor(seedrandom()() * 0x100000000).toString();
 }
 
 function save()
@@ -495,6 +495,7 @@ function save()
 		}
 		fs.mkdirSync(dir);
 		fs.writeFileSync(path.join(dir, "info.txt"), output.textContent);
+		fs.writeFileSync(path.join(dir, "stickers_small.png"), new Frame(canvas, { image: { types: ["png"] } }).toBuffer());
 		fs.writeFileSync(path.join(dir, "stickers.png"), new Frame(bigCanvas, { image: { types: ["png"] } }).toBuffer());
 
 		alert(`Saved to ${dir}`);
