@@ -57,4 +57,4 @@ If you ever get lost in space, the first step will be to figure out which orbit 
 
 <br>
 <br>
-<sub>Source: <span>https</span>://github.com/kendfrey/lostinspacecube/blob/master/instructions.md</sub>
+<sub>Source: https://github.com/kendfrey/lostinspacecube/blob/master/instructions.md</sub>
