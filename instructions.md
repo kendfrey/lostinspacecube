@@ -34,9 +34,9 @@ The orbits are arranged as follows:
 
 For example:
 
-- If you try to solve orbit 1, but there is a counter-clockwise corner twist and two edges are swapped, the cube is actually in orbit 12.
+- If you try to solve orbit 1, but there is a clockwise corner twist and two edges are swapped, the cube is actually in orbit 12.
 - If you try to solve orbit 8, but there is a flipped edge, the cube is actually in orbit 11.
-- If you try to solve orbit 11, but there is a clockwise corner twist, a flipped edge, and two edges are swapped, the cube is actually in orbit 6.
+- If you try to solve orbit 11, but there is a counter-clockwise corner twist, a flipped edge, and two edges are swapped, the cube is actually in orbit 6.
 
 ### How do I scramble it?
 
